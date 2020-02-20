@@ -42,3 +42,9 @@ class Mysql:
         else:
             result = result[0][0]
         return str(result)
+
+    # 执行操作
+    def do(self, sql):
+        self.db.execute(sql)
+        self.db.connection.commit()
+        self.db.close()

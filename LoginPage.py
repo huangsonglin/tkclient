@@ -55,7 +55,7 @@ class LoginPage(object):
 				self.page.destroy()
 				MainPage(self.root)
 				Authorization = 'Bearer ' + req.json()['accessToken']
-				user_info = {"username": name, "Authorization": Authorization}
+				user_info = {"username": name, "Authorization": Authorization, "memberId": req.json()['id']}
 				wirte(json.dumps(user_info))
 			else:
 				showinfo(title='错误', message='账号或密码错误！')

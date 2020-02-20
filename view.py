@@ -186,9 +186,10 @@ class BAFrame(Frame):  # 继承Frame类
 		Button(self, text="取 消", font=("楷体", 12)).grid(row=6, column=1, stick=E)
 
 	def addAuction(self):
-		Authorization = get_file()['Authorization']
-		username = get_file()['username']
-		username = get_file()['username']
+		txtResult = get_file()
+		Authorization = txtResult['Authorization']
+		username = txtResult['username']
+		memberId = txtResult['memberId']
 		auctionId = self.data_sources.get()
 		auctionResult = localRedis.hscan(auctionId, count=100)[1]
 		productList = ''
@@ -215,6 +216,11 @@ class BAFrame(Frame):  # 继承Frame类
 			 productIds=productList, startTime=startTime, desc=auctionDesc, preEnter=preEnter, perActionDelay=perActionDelay)
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建轰啪拍场')
+			auctionId = Mysql().reslut_replace\
+				(f'select id from auction where member_id={memberId} and bid_model="AUC_BID" and valid=TRUE '
+				 f'AND source="APP" AND appr_state="W" and start_time="{startTime}" ORDER BY id DESC')
+			UPDATESQL = f'UPDATE lot SET deliver_people="TESTADMIN" WHERE auction_id={auctionId} AND valid=TRUE AND source="APP"'
+			Mysql().do(UPDATESQL)
 		else:
 			showinfo(title='Sorry', message='创建轰啪拍品拍场')
 
