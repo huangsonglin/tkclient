@@ -41,7 +41,6 @@ class MainPage(object):
 	def BidProduct(self):
 		self.BidProductPage.pack()
 		self.DelayProductPage.pack_forget()
-		self.ShopProductPage.pack_forget()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack_forget()
 		self.FormLivePage.pack_forget()

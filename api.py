@@ -18,8 +18,7 @@ import requests
 
 localhost = socket.gethostname()
 lredis = redis.StrictRedis(host=localhost, port="6379", db=0)
-
-f = open(os.path.join(curPath, "config.js"), 'r')
+f = open(os.path.join(curPath, "config.js"), encoding="utf-8", errors='ignore')
 config = json.load(f)
 host = config[0]['host']
 headers = config[0]['headers']

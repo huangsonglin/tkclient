@@ -19,3 +19,6 @@ host = config['redis_host']
 localRedis = redis.StrictRedis(host=host)
 
 
+print()
+
+

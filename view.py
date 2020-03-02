@@ -9,7 +9,7 @@ import sys
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.append(rootPath)
-
+import datetime
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
@@ -30,42 +30,39 @@ class BPFrame(Frame):  # 继承Frame类
 		self.markePrice = StringVar()
 		self.PlanTime = StringVar()
 		self.PTpye = StringVar()
+		f = open(os.path.join(curPath, "config.js"), encoding="utf-8", errors='ignore')
+		config = json.load(f)
+		self.config = config[0]
 		self.createPage()
 
 	def createPage(self):
 		Label(self).grid(row=0, stick=W, pady=10)
-		Label(self, text='起拍价: ', font=("楷体", 12)).grid(row=1, stick=W, pady=10)
-		Entry(self, textvariable=self.beginPrice).grid(row=1, column=1, stick=E)
-		Label(self, text='加价幅度: ', font=("楷体", 12)).grid(row=2, stick=W, pady=10)
+		Label(self).grid(row=1, stick=W, pady=10)
+		Label(self, text='起拍价: ', font=("楷体", 12)).grid(row=2, stick=W, pady=10)
+		Entry(self, textvariable=self.beginPrice).grid(row=2, column=1, stick=E)
+		Label(self, text='加价幅度: ', font=("楷体", 12)).grid(row=3, stick=W, pady=10)
 		bidlivc = ttk.Combobox(self, width=15, font=("楷体", 12), textvariable=self.bid_Ivc)
-		bidlivc.grid(row=2, column=1, stick=E)
-		bidlivc["values"] = ['B_I_01:+¥50', 'B_I_02:+¥100', 'B_I_03:+¥200', 'B_I_04:+¥300', 'B_I_05:+¥400',
-							 'B_I_06:+¥500', 'B_I_07:+¥1000', 'B_I_10:+¥1500', 'B_I_08:+¥2000', 'B_I_11:+¥3000',
-							 'B_I_09:+¥5000', 'B_I_12:+¥30000', 'B_I_13:+¥10000', 'B_I_14:+¥50000', 'B_I_15:+¥100000']
+		bidlivc.grid(row=3, column=1, stick=E)
+		bidlivc["values"] = list(self.config['bid_Ivc_list'].values())
 		# 默认为下拉一个值
 		bidlivc.current(0)
-		Label(self, text='市场估价: ', font=("楷体", 12)).grid(row=3, stick=W, pady=10)
+		Label(self, text='市场估价: ', font=("楷体", 12)).grid(row=4, stick=W, pady=10)
 		market = ttk.Combobox(self, width=15, font=("楷体", 12), textvariable=self.markePrice)
-		market.grid(row=3, column=1, stick=E)
-		market['values'] = ['P_M_01:¥500以上', 'P_M_02:¥1,000以上', 'P_M_03:¥5,000以上', 'P_M_04:¥10,000以上',
-							'P_M_08:¥30,000以上', 'P_M_05:¥50,000以上', 'P_M_09:¥80,000以上', 'P_M_06:¥100,000以上',
-							'P_M_07:估价待询', 'P_M_10:¥40万以上', 'P_M_11:¥100万以上', 'P_M_12:¥200万以上',
-							'P_M_13:¥500万以上']
+		market.grid(row=4, column=1, stick=E)
+		market['values'] = list(self.config['market_value_list'].values())
 		market.current(0)
-		Label(self, text='预拍时长: ', font=("楷体", 12)).grid(row=4, stick=W, pady=10)
+		Label(self, text='预拍时长: ', font=("楷体", 12)).grid(row=5, stick=W, pady=10)
 		pretime = ttk.Combobox(self, width=15, font=("楷体", 12), textvariable=self.PlanTime)
-		pretime.grid(row=4, column=1, stick=E)
-		pretime['values'] = ['P_P_01:2分钟', 'P_P_02:3分钟', 'P_P_03:5分钟', 'P_P_04:8分钟', 'P_P_05:10分钟', 'P_P_06:15分钟',
-							 'P_P_07:240拍场出价测试专用']
+		pretime.grid(row=5, column=1, stick=E)
+		pretime['values'] = list(self.config['pre_time_list'].values())
 		pretime.current(0)
-		Label(self, text='拍品类型: ', font=("楷体", 12)).grid(row=5, stick=W, pady=10)
+		Label(self, text='拍品类型: ', font=("楷体", 12)).grid(row=6, stick=W, pady=10)
 		ptype = ttk.Combobox(self, width=15, font=("楷体", 12), textvariable=self.PTpye)
-		ptype.grid(row=5, column=1, stick=E)
-		ptype['values'] = ['P_T_01:造像', 'P_T_02:唐卡', 'P_T_03:法器', 'P_T_04:古珠', 'P_T_05:杂项', 'P_T_07:综合',
-						   'P_T_06:设计', 'P_T_08:古玉']
+		ptype.grid(row=6, column=1, stick=E)
+		ptype['values'] = list(self.config['type_list'].values())
 		ptype.current(0)
-		Button(self, text="确 认", font=("楷体", 12), command=self.addProduct).grid(row=6, stick=W, pady=10)
-		Button(self, text="取 消", font=("楷体", 12)).grid(row=6, column=1, stick=E)
+		Button(self, text="确 认", font=("楷体", 12), command=self.addProduct).grid(row=7, stick=W, pady=10)
+		Button(self, text="取 消", font=("楷体", 12), command=self.esc).grid(row=7, column=1, stick=E)
 
 	def addProduct(self):
 		Authorization = get_file()['Authorization']
@@ -76,20 +73,26 @@ class BPFrame(Frame):  # 继承Frame类
 		lotImage = online_info['lotImages']
 		beginPrice = self.beginPrice.get()
 		bidIvc = self.bid_Ivc.get()
-		bidIvc = bidIvc.split(":")[0]
+		bidIvc = list(self.config['bid_Ivc_list'].keys())[list(self.config['bid_Ivc_list'].values()).index(bidIvc)]
 		mprice = self.markePrice.get()
-		mprice = mprice.split(":")[0]
+		mprice = list(self.config['market_value_list'].keys())[list(self.config['market_value_list'].values()).index(mprice)]
 		ptye = self.PTpye.get()
-		ptye = ptye.split(":")[0]
+		ptye = list(self.config['type_list'].keys())[list(self.config['type_list'].values()).index(ptye)]
 		ptm = self.PlanTime.get()
-		ptm = ptm.split(":")[0]
+		ptm = list(self.config['pre_time_list'].keys())[list(self.config['pre_time_list'].values()).index(ptm)]
 		req = addMyAppProduct_270(Authorization, beginPrice=beginPrice, name=lotname, desc=lotdesc, icon=lotImage,
 								  bidInc=bidIvc, marketPrice=mprice, planTime=ptm, ptype=ptye)
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建轰啪拍品')
 		else:
-			showinfo(title='Sorry', message='创建轰啪拍品失败')
+			showinfo(title='Sorry', message=req.text)
 
+	def esc(self):
+		self.beginPrice.set("")
+		self.bid_Ivc.set(list(self.config['bid_Ivc_list'].values())[0])
+		self.markePrice.set(list(self.config['market_value_list'].values())[0])
+		self.PlanTime.set(list(self.config['pre_time_list'].values())[0])
+		self.PTpye.set(list(self.config['type_list'].values())[0])
 
 class DPFrame(Frame):  # 继承Frame类
 	def __init__(self, master=None):
@@ -100,6 +103,9 @@ class DPFrame(Frame):  # 继承Frame类
 		self.markePrice = StringVar()
 		self.PlanTime = StringVar()
 		self.PTpye = StringVar()
+		f = open(os.path.join(curPath, "config.js"), encoding="utf-8", errors='ignore')
+		config = json.load(f)
+		self.config = config[0]
 		self.createPage()
 
 	def createPage(self):
@@ -113,8 +119,7 @@ class DPFrame(Frame):  # 继承Frame类
 		Label(self, text='拍品类型: ', font=("楷体", 12)).grid(row=4, stick=W, pady=10)
 		ptype = ttk.Combobox(self, width=15, font=("楷体", 12), textvariable=self.PTpye)
 		ptype.grid(row=4, column=1, stick=E)
-		ptype['values'] = ['P_T_01:造像', 'P_T_02:唐卡', 'P_T_03:法器', 'P_T_04:古珠', 'P_T_05:杂项', 'P_T_07:综合',
-						   'P_T_06:设计', 'P_T_08:古玉']
+		ptype['values'] = list(self.config['type_list'].values())
 		ptype.current(0)
 		Button(self, text="确 认", font=("楷体", 12), command=self.addProduct).grid(row=6, stick=W, pady=10)
 		Button(self, text="取 消", font=("楷体", 12)).grid(row=6, column=1, stick=E)
@@ -130,13 +135,13 @@ class DPFrame(Frame):  # 继承Frame类
 		bidIvc = self.bid_Ivc.get()
 		mprice = self.markePrice.get()
 		ptye = self.PTpye.get()
-		ptye = ptye.split(":")[0]
+		ptye = list(self.config['type_list'].keys())[list(self.config['type_list'].values()).index(ptye)]
 		req = addMyDelayAucProduct_420(Authorization, beginPrice=beginPrice, name=lotname, desc=lotdesc, images=lotImage,
 								  bidIncValue=bidIvc, marketPriceValue=mprice, type=ptye)
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建轰啪拍品')
 		else:
-			showinfo(title='Sorry', message='创建轰啪拍品失败')
+			showinfo(title='Sorry', message=req.text)
 
 
 class BAFrame(Frame):  # 继承Frame类
@@ -145,7 +150,7 @@ class BAFrame(Frame):  # 继承Frame类
 		self.root = master  # 定义内部变量root
 		self.data_sources = StringVar()
 		self.startTime = StringVar()
-		self.startTime.set("开拍时间,格式如:2020-02-22 10:00:00")
+		self.time_unit = StringVar()
 		self.auctionType = StringVar()
 		self.preEnter = StringVar()
 		self.perActionDelay = StringVar()
@@ -160,7 +165,11 @@ class BAFrame(Frame):  # 继承Frame类
 		data_sources['values'] = autionList
 		data_sources.current(0)
 		Label(self, text="开拍时间: ", font=("楷体", 12)).grid(row=2, stick=W, pady=10)
-		Entry(self, textvariable=self.startTime, width=31).grid(row=2, column=1, stick=E)
+		Entry(self, textvariable=self.startTime, width=10).grid(row=2, column=1, stick=W)
+		unitList = ttk.Combobox(self, textvariable=self.time_unit, width=10)
+		unitList.grid(row=2, column=1, stick=E)
+		unitList['values'] = ["分钟", "小时", "天"]
+		unitList.current(0)
 		Label(self, text="拍场类型: ", font=("楷体", 12)).grid(row=3, stick=W, pady=10)
 		auctionType = ttk.Combobox(self, width=25, font=("楷体", 12), textvariable=self.auctionType)
 		auctionType.grid(row=3, column=1, stick=E)
@@ -207,7 +216,16 @@ class BAFrame(Frame):  # 继承Frame类
 		auctionName = auctionResult[b'auctionName'].decode()
 		auctionDesc = auctionResult[b'auctionDesc'].decode()
 		auctionIcon = auctionResult[b'auctionIcon'].decode()
-		startTime = self.startTime.get()
+		startNum = self.startTime.get()
+		unit_time = self.time_unit.get()
+		if unit_time == "分钟":
+			startTime = datetime.datetime.now() + datetime.timedelta(minutes=int(startNum))
+		elif unit_time == "小时":
+			startTime = datetime.datetime.now() + datetime.timedelta(hours=int(startNum))
+		else:
+			startTime = datetime.datetime.now() + datetime.timedelta(days=int(startNum))
+		sqlstartTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
+		startTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
 		auctionType = self.auctionType.get().split(":")[0]
 		preEnter = self.preEnter.get().split(":")[0]
 		perActionDelay = self.perActionDelay.get().split(':')[0]
@@ -218,11 +236,13 @@ class BAFrame(Frame):  # 继承Frame类
 			showinfo(title='恭喜', message='成功创建轰啪拍场')
 			auctionId = Mysql().reslut_replace\
 				(f'select id from auction where member_id={memberId} and bid_model="AUC_BID" and valid=TRUE '
-				 f'AND source="APP" AND appr_state="W" and start_time="{startTime}" ORDER BY id DESC')
-			UPDATESQL = f'UPDATE lot SET deliver_people="TESTADMIN" WHERE auction_id={auctionId} AND valid=TRUE AND source="APP"'
+				 f'AND source="APP" AND appr_state="W" and `name` ="{auctionName}" and '
+				 f'DATE_FORMAT(start_time,"%Y-%m-%d %H:%i")="{sqlstartTime}" ORDER BY id DESC')
+			UPDATESQL = f'UPDATE lot SET deliver_people="TESTADMIN" ' \
+						f'WHERE auction_id={auctionId} AND valid=TRUE AND source="APP"'
 			Mysql().do(UPDATESQL)
 		else:
-			showinfo(title='Sorry', message='创建轰啪拍品拍场')
+			showinfo(title='Sorry', message=req.text)
 
 # 添加秒啪拍场Frame
 class DAFrame(Frame):  # 继承Frame类
@@ -232,10 +252,10 @@ class DAFrame(Frame):  # 继承Frame类
 		self.data_sources = StringVar()
 		# 预拍时间
 		self.expectedStartTime = StringVar()
-		self.expectedStartTime.set("预拍时间,格式如:2020-02-22 10:00:00")
+		self.UnitStartTime = StringVar()
 		# 预结束时间
 		self.expectedEndTime = StringVar()
-		self.expectedEndTime.set("预结束时间,格式如:2020-02-22 10:00:00")
+		self.UnitEndTime = StringVar()
 		# 保证金
 		self.bidBondAmount = StringVar()
 		# 买家佣金百分比
@@ -253,9 +273,17 @@ class DAFrame(Frame):  # 继承Frame类
 		data_sources['values'] = autionList
 		data_sources.current(0)
 		Label(self, text="预拍时间: ", font=("楷体", 12)).grid(row=2, stick=W, pady=10)
-		Entry(self, textvariable=self.expectedStartTime, width=31).grid(row=2, column=1, stick=E)
+		Entry(self, textvariable=self.expectedStartTime, width=10).grid(row=2, column=1, stick=W)
+		sunitList = ttk.Combobox(self, textvariable=self.UnitStartTime, width=10)
+		sunitList.grid(row=2, column=1, stick=E)
+		sunitList['values'] = ["分钟", "小时", "天"]
+		sunitList.current(0)
 		Label(self, text="预结束时间: ", font=("楷体", 12)).grid(row=3, stick=W, pady=10)
-		Entry(self, textvariable=self.expectedEndTime, width=31).grid(row=3, column=1, stick=E)
+		Entry(self, textvariable=self.expectedEndTime, width=10).grid(row=3, column=1, stick=W)
+		eunitList = ttk.Combobox(self, textvariable=self.UnitEndTime, width=10)
+		eunitList.grid(row=3, column=1, stick=E)
+		eunitList['values'] = ["分钟", "小时", "天"]
+		eunitList.current(0)
 		Label(self, text="保证金: ", font=("楷体", 12)).grid(row=4, stick=W, pady=10)
 		Entry(self, textvariable=self.bidBondAmount, width=31).grid(row=4, column=1, stick=E)
 		Label(self, text="佣金比: ", font=("楷体", 12)).grid(row=5, stick=W, pady=10)
@@ -284,9 +312,25 @@ class DAFrame(Frame):  # 继承Frame类
 		auctionName = auctionResult[b'auctionName'].decode()
 		auctionDesc = auctionResult[b'auctionDesc'].decode()
 		auctionIcon = auctionResult[b'auctionIcon'].decode()
-		expectedStartTime = self.expectedStartTime.get()
-		expectedEndTime = self.expectedEndTime.get()
+		StartNum = self.expectedStartTime.get()
+		EndNum = self.expectedEndTime.get()
+		StartUnit = self.UnitStartTime.get()
+		EndUnit = self.UnitEndTime.get()
 		bidBondAmount = self.bidBondAmount.get()
+		if StartUnit == "分钟":
+			expectedStartTime = datetime.datetime.now() + datetime.timedelta(minutes=int(StartNum))
+		elif StartUnit == "小时":
+			expectedStartTime = datetime.datetime.now() + datetime.timedelta(hours=int(StartNum))
+		else:
+			expectedStartTime = datetime.datetime.now() + datetime.timedelta(days=int(StartNum))
+		if EndUnit == "分钟":
+			expectedEndTime = datetime.datetime.now() + datetime.timedelta(minutes=int(StartNum))
+		elif EndUnit == "小时":
+			expectedEndTime = datetime.datetime.now() + datetime.timedelta(hours=int(StartNum))
+		else:
+			expectedEndTime = datetime.datetime.now() + datetime.timedelta(days=int(StartNum))
+		expectedStartTime = expectedStartTime.strftime("%Y-%m-%d %H:%M:%S")
+		expectedEndTime = expectedEndTime.strftime("%Y-%m-%d %H:%M:%S")
 		buyerCommissionPercent = self.buyerCommissionPercent.get()
 		req = addMyDelayAucAuction_420(Authorization=Authorization, name=auctionName,
 												icon=auctionIcon, productIdList=productList,
@@ -296,7 +340,7 @@ class DAFrame(Frame):  # 继承Frame类
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建秒啪拍场')
 		else:
-			showinfo(title='Sorry', message='创建秒啪拍场失败')
+			showinfo(title='Sorry', message=req.text)
 
 
 class FLFrame(Frame):  # 继承Frame类
