@@ -16,9 +16,6 @@ f = open(os.path.join(curPath, "config.js"), encoding="utf-8", errors='ignore')
 config = json.load(f)
 config = config[0]
 host = config['redis_host']
-localRedis = redis.StrictRedis(host=host)
-
-
-print()
+localRedis = redis.StrictRedis(host=host, password="123456")
 
 

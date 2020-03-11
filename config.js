@@ -14,7 +14,7 @@
             "password": "dacang@1121@2001",
             "dbname": "paimai_test_new"
         },
-        "redis_host": "192.168.10.42",
+        "redis_host": "192.168.50.129",
         "bid_Ivc_list": {
             "B_I_01": "+¥50",
             "B_I_02": "+¥100",

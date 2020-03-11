@@ -75,7 +75,8 @@ class BPFrame(Frame):  # 继承Frame类
 		bidIvc = self.bid_Ivc.get()
 		bidIvc = list(self.config['bid_Ivc_list'].keys())[list(self.config['bid_Ivc_list'].values()).index(bidIvc)]
 		mprice = self.markePrice.get()
-		mprice = list(self.config['market_value_list'].keys())[list(self.config['market_value_list'].values()).index(mprice)]
+		mprice = list(self.config['market_value_list'].keys())[
+			list(self.config['market_value_list'].values()).index(mprice)]
 		ptye = self.PTpye.get()
 		ptye = list(self.config['type_list'].keys())[list(self.config['type_list'].values()).index(ptye)]
 		ptm = self.PlanTime.get()
@@ -93,6 +94,7 @@ class BPFrame(Frame):  # 继承Frame类
 		self.markePrice.set(list(self.config['market_value_list'].values())[0])
 		self.PlanTime.set(list(self.config['pre_time_list'].values())[0])
 		self.PTpye.set(list(self.config['type_list'].values())[0])
+
 
 class DPFrame(Frame):  # 继承Frame类
 	def __init__(self, master=None):
@@ -136,8 +138,9 @@ class DPFrame(Frame):  # 继承Frame类
 		mprice = self.markePrice.get()
 		ptye = self.PTpye.get()
 		ptye = list(self.config['type_list'].keys())[list(self.config['type_list'].values()).index(ptye)]
-		req = addMyDelayAucProduct_420(Authorization, beginPrice=beginPrice, name=lotname, desc=lotdesc, images=lotImage,
-								  bidIncValue=bidIvc, marketPriceValue=mprice, type=ptye)
+		req = addMyDelayAucProduct_420(Authorization, beginPrice=beginPrice, name=lotname, desc=lotdesc,
+									   images=lotImage,
+									   bidIncValue=bidIvc, marketPriceValue=mprice, type=ptye)
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建轰啪拍品')
 		else:
@@ -154,6 +157,15 @@ class BAFrame(Frame):  # 继承Frame类
 		self.auctionType = StringVar()
 		self.preEnter = StringVar()
 		self.perActionDelay = StringVar()
+		per_ActionDelay_list = Mysql().sql_result \
+			('SELECT `value`, `key` FROM param WHERE type ="AUC_ITIME"')
+		self.perActionDelaylist = dict(per_ActionDelay_list)
+		pre_Enter_list = Mysql().sql_result \
+			('SELECT `value`, `key` FROM param WHERE type ="AUC_PE"')
+		self.PreEnterlist = dict(pre_Enter_list)
+		auction_Type_list = Mysql().sql_result \
+			('SELECT `value`, `key` FROM param WHERE type ="AUCTION_TYPE"')
+		self.auctionTypelist = dict(auction_Type_list)
 		self.createPage()
 
 	def createPage(self):
@@ -173,23 +185,17 @@ class BAFrame(Frame):  # 继承Frame类
 		Label(self, text="拍场类型: ", font=("楷体", 12)).grid(row=3, stick=W, pady=10)
 		auctionType = ttk.Combobox(self, width=25, font=("楷体", 12), textvariable=self.auctionType)
 		auctionType.grid(row=3, column=1, stick=E)
-		auctionTypelist = Mysql().reslut_replace\
-			('SELECT GROUP_CONCAT(`key`, ":", `value`) FROM param WHERE type ="AUCTION_TYPE" GROUP BY type')
-		auctionType['values'] = auctionTypelist.split(',')
+		auctionType['values'] = list(self.auctionTypelist.keys())
 		auctionType.current(0)
 		Label(self, text="预进入时间: ", font=("楷体", 12)).grid(row=4, stick=W, pady=10)
 		PreEnter = ttk.Combobox(self, width=25, font=("楷体", 12), textvariable=self.preEnter)
 		PreEnter.grid(row=4, column=1, stick=E)
-		PreEnterlist = Mysql().reslut_replace \
-			('SELECT GROUP_CONCAT(`key`, ":",`value`) FROM param WHERE type ="AUC_PE" GROUP BY type')
-		PreEnter['values'] = PreEnterlist.split(',')
+		PreEnter['values'] = list(self.PreEnterlist.keys())
 		PreEnter.current(0)
 		Label(self, text="预热时间: ", font=("楷体", 12)).grid(row=5, stick=W, pady=10)
 		perActionDelay = ttk.Combobox(self, width=25, font=("楷体", 12), textvariable=self.perActionDelay)
 		perActionDelay.grid(row=5, column=1, stick=E)
-		perActionDelaylist = Mysql().reslut_replace \
-			('SELECT GROUP_CONCAT(`key`, ":",`value`) FROM param WHERE type ="AUC_ITIME" GROUP BY type')
-		perActionDelay['values'] = perActionDelaylist.split(',')
+		perActionDelay['values'] = list(self.perActionDelaylist.keys())
 		perActionDelay.current(0)
 		Button(self, text="确 认", font=("楷体", 12), command=self.addAuction).grid(row=6, stick=W, pady=10)
 		Button(self, text="取 消", font=("楷体", 12)).grid(row=6, column=1, stick=E)
@@ -211,7 +217,7 @@ class BAFrame(Frame):  # 继承Frame类
 				icon = lotImages.split(",")[0]
 				preq = addOfficeMyAppProduct_270 \
 					(Authorization=Authorization, name=lotName, icon=icon, desc=lotDesc)
-				productList += (str(preq.json()['id'])+",")
+				productList += (str(preq.json()['id']) + ",")
 		productList = productList.strip(',')
 		auctionName = auctionResult[b'auctionName'].decode()
 		auctionDesc = auctionResult[b'auctionDesc'].decode()
@@ -224,17 +230,18 @@ class BAFrame(Frame):  # 继承Frame类
 			startTime = datetime.datetime.now() + datetime.timedelta(hours=int(startNum))
 		else:
 			startTime = datetime.datetime.now() + datetime.timedelta(days=int(startNum))
-		sqlstartTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
+		sqlstartTime = startTime.strftime("%Y-%m-%d %H:%M")
 		startTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
-		auctionType = self.auctionType.get().split(":")[0]
-		preEnter = self.preEnter.get().split(":")[0]
-		perActionDelay = self.perActionDelay.get().split(':')[0]
+		auctionType = self.auctionTypelist.get(self.auctionType.get())
+		preEnter = self.PreEnterlist.get(self.preEnter.get())
+		perActionDelay = self.PreEnterlist.get(self.perActionDelay.get())
 		req = addMyAppOfficeAuction_240 \
 			(Authorization=Authorization, name=auctionName, icon=auctionIcon, auctionType=auctionType,
-			 productIds=productList, startTime=startTime, desc=auctionDesc, preEnter=preEnter, perActionDelay=perActionDelay)
+			 productIds=productList, startTime=startTime, desc=auctionDesc, preEnter=preEnter,
+			 perActionDelay=perActionDelay)
 		if req.status_code == 200:
 			showinfo(title='恭喜', message='成功创建轰啪拍场')
-			auctionId = Mysql().reslut_replace\
+			auctionId = Mysql().reslut_replace \
 				(f'select id from auction where member_id={memberId} and bid_model="AUC_BID" and valid=TRUE '
 				 f'AND source="APP" AND appr_state="W" and `name` ="{auctionName}" and '
 				 f'DATE_FORMAT(start_time,"%Y-%m-%d %H:%i")="{sqlstartTime}" ORDER BY id DESC')
@@ -243,6 +250,7 @@ class BAFrame(Frame):  # 继承Frame类
 			Mysql().do(UPDATESQL)
 		else:
 			showinfo(title='Sorry', message=req.text)
+
 
 # 添加秒啪拍场Frame
 class DAFrame(Frame):  # 继承Frame类
@@ -333,7 +341,7 @@ class DAFrame(Frame):  # 继承Frame类
 		expectedEndTime = expectedEndTime.strftime("%Y-%m-%d %H:%M:%S")
 		buyerCommissionPercent = self.buyerCommissionPercent.get()
 		req = addMyDelayAucAuction_420(Authorization=Authorization, name=auctionName,
-												icon=auctionIcon, productIdList=productList,
+									   icon=auctionIcon, productIdList=productList,
 									   desc=auctionDesc, expectedStartTime=expectedStartTime,
 									   expectedEndTime=expectedEndTime, bidBondAmount=bidBondAmount,
 									   buyerCommissionPercent=buyerCommissionPercent)
@@ -351,3 +359,45 @@ class FLFrame(Frame):  # 继承Frame类
 
 	def createPage(self):
 		Label(self, text='讲堂直播').pack()
+
+
+class DELPFrame(Frame):
+	def __init__(self, master=None):
+		Frame.__init__(self, master)
+		self.root = master  # 定义内部变量root
+		self.LotType = StringVar()
+		self.createPage()
+
+	def createPage(self):
+		Label(self).grid(row=0, stick=W, pady=10)
+		Label(self).grid(row=1, stick=W, pady=10)
+		Label(self).grid(row=2, stick=W, pady=10)
+		Label(self, text='清除类型: ', font=("楷体", 12)).grid(row=3, stick=W, pady=10)
+		lot_type_list = ttk.Combobox(self, width=25, font=("楷体", 12), textvariable=self.LotType)
+		lot_type_list.grid(row=3, column=1, stick=E)
+		lot_type_list['values'] = ["轰啪", "秒啪", "商城商品"]
+		lot_type_list.current(0)
+		Label(self).grid(row=4, stick=W, pady=10)
+		Label(self).grid(row=5, stick=W, pady=10)
+		Button(self, text="确 认", font=("楷体", 12), command=self.sure).grid(row=6, stick=W, pady=10)
+		Button(self, text="取 消", font=("楷体", 12), command=self.esc).grid(row=6, column=1, stick=E)
+
+	def sure(self):
+		txtResult = get_file()
+		memberId = txtResult['memberId']
+		ltype = self.LotType.get()
+		sure_value = askokcancel(title="确认清除数据", message="该操作为不可逆操作，是否清楚对应数据!")
+		if sure_value:
+			if ltype == "轰啪":
+				sql = f'UPDATE product SET valid=FALSE WHERE member_id={memberId} AND sold_out=FALSE AND in_auction=FALSE AND valid=TRUE AND auction_id IS NULL and bid_model="AUC_BID"'
+				Mysql().do(sql)
+			elif ltype == "秒啪":
+				sql = f'UPDATE product SET valid=FALSE WHERE member_id={memberId} AND sold_out=FALSE AND in_auction=FALSE AND valid=TRUE AND auction_id IS NULL and bid_model="AUC_DELAY"'
+				Mysql().do(sql)
+			else:
+				sql = f'UPDATE product SET valid=FALSE WHERE member_id={memberId} AND sold_out=FALSE AND in_auction=FALSE AND valid=TRUE AND auction_id IS NULL and bid_model="PRODUCT_SHOP"'
+				Mysql().do(sql)
+		else:
+			pass
+	def esc(self):
+		pass
