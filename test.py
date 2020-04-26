@@ -63,5 +63,5 @@ import pymysql
 # enter_usr_nkn.place(x=160, y=250)
 # tk.mainloop()
 
-st = "P_T_01:造像,P_T_02:唐卡,P_T_03:法器,P_T_04:古珠,P_T_05:杂项,P_T_07:综合,P_T_06:设计,P_T_08:古玉"
-print(st.split(","))
+print(bool("True"))
+print(bool("False"))

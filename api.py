@@ -74,8 +74,8 @@ def addMyAppOfficeAuction_240(Authorization, auctionType, preEnter, perActionDel
 	url = host + 'interface/mobile/addMyAppAuction_240'
 	keyword = "测试 轰啪 拍场"
 	data = {'icon': icon, 'name': name, 'keyword': keyword, 'startTime': startTime, 'productIds': productIds,
-			'desc': desc, 'apprState': "W", 'auctionType': auctionType, "perActionDelay": "A_I_01",
-			"preEnter": "A_P_10"}
+			'desc': desc, 'apprState': "W", 'auctionType': auctionType, "perActionDelay": perActionDelay,
+			"preEnter": preEnter}
 	headers.update(Authorization=Authorization)
 	req = requests.post(url, data=data, headers=headers)
 	return req
@@ -123,7 +123,63 @@ def addMyDelayAucAuction_420(Authorization, name, desc, icon, productIdList, exp
 	return req
 
 
-if __name__ == '__main__':
-	# write_token(19800000001, "123456")
-	token = login(19800000001, "123456")
-	print(token.text)
+def getLivePushAddress_430 (Authorization, liveId):
+	data = {"liveId": liveId}
+	url = host + 'interface/mobile/getLivePushAddress_430'
+	headers.update(Authorization=Authorization)
+	req = requests.post(url, headers=headers, data=data)
+	return req
+
+
+def addMyLive_520(Authorization, liveType, presenterId, specialGuestId, icon, name, startTime, preEnter, desc, auctionId):
+		"""
+		创建直播
+		"""
+		url = host + 'interface/mobile/addMyLive_520'
+		data = {"liveType": liveType, "presenterId": presenterId, "specialGuestId": specialGuestId, "icon": icon,
+				"name": name, "startTime": startTime, "preEnter": preEnter, "desc": desc, "auctionId": auctionId}
+		print(data)
+		headers.update(Authorization=Authorization)
+		req = requests.post(url, data=data, headers=headers)
+		return req
+
+def addAppShopProduct_500(Authorization, name, desc, waitPrice, originalPrice, salesPrice,
+						  shopCategory, dcCategory, inAuction, single, inventory, images, bigImages,
+						  returnProduct, freePost, postage, videoImage=None, video=None):
+	"""
+	:param username:
+	:param password:
+	:param images:  图片
+	:param video:   视频
+	:param videoImage: 视频封面图片
+	:param name:    商品名称
+	:param desc:    商品描述
+	:param waitPrice:   是否展示/估价待询    True/False
+	:param originalPrice:   商品原价
+	:param salesPrice:      优惠价
+	:param shopCategory:    自定义分类
+	:param dcCategory:      藏品类型
+	:param inAuction:       是否上架 True/False
+	:param single:          是否单品 True/False
+	:param inventory:       库存
+	:param freePost:        是否包邮 True/False
+	:param postage:         邮费
+	:return:
+	"""
+	url = host + 'interface/mobile/addAppShopProduct_500'
+	data = {'name': name, "images": images, 'desc': desc, 'video': video, 'videoImage': videoImage,
+			'waitPrice': waitPrice
+		, 'originalPrice': originalPrice, 'salesPrice': salesPrice, 'shopCategory': shopCategory,
+			'dcCategory': dcCategory,
+			'inAuction': inAuction, 'single': single, 'inventory': inventory, 'freePost': freePost,
+			'postage': postage, 'bigImages': bigImages, 'returnProduct': returnProduct}
+	headers.update(Authorization=Authorization)
+	req = requests.post(url, data=data, headers=headers)
+	return req
+
+
+def word_swich_bool(word):
+	if word =="True":
+		return True
+	else:
+		return False

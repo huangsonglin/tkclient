@@ -18,4 +18,3 @@ config = config[0]
 host = config['redis_host']
 localRedis = redis.StrictRedis(host=host, password="123456")
 
-

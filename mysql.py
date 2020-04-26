@@ -48,3 +48,4 @@ class Mysql:
         self.db.execute(sql)
         self.db.connection.commit()
         self.db.close()
+

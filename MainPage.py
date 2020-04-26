@@ -28,16 +28,18 @@ class MainPage(object):
 		self.DelayProductPage = DPFrame(self.root)
 		self.BidAuctionPage = BAFrame(self.root)
 		self.DelayAuctionPage = DAFrame(self.root)
-		self.FormLivePage = FLFrame(self.root)
+		self.CreatLivePage = CLiveFrame(self.root)
 		self.DeleTeProductPage = DELPFrame(self.root)
-		self.BidProductPage.pack()  # 默认显示数据录入界面
+		self.ShopProductPage = ShopFrame(self.root)
+		self.BidAuctionPage.pack()  # 默认显示数据录入界面
 		menubar = Menu(self.root)
 		menubar.add_command(label='轰啪拍品', command=self.BidProduct)
 		menubar.add_command(label='秒啪拍品', command=self.DelayProduct)
+		menubar.add_command(label='商城商品', command=self.ShopProduct)
 		menubar.add_command(label='轰啪拍场', command=self.BidAuction)
 		menubar.add_command(label='秒啪拍场', command=self.DelayAuction)
-		menubar.add_command(label='讲堂直播', command=self.FormLive)
-		menubar.add_command(label='清除数据', command=self.DLEProduct)
+		menubar.add_command(label='直播', command=self.CreatLive)
+		menubar.add_command(label='数据清理', command=self.DLEProduct)
 		self.root['menu'] = menubar  # 设置菜单栏
 
 	def BidProduct(self):
@@ -45,45 +47,60 @@ class MainPage(object):
 		self.DelayProductPage.pack_forget()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack_forget()
-		self.FormLivePage.pack_forget()
+		self.CreatLivePage.pack_forget()
 		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack_forget()
 
 	def DelayProduct(self):
 		self.BidProductPage.pack_forget()
 		self.DelayProductPage.pack()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack_forget()
-		self.FormLivePage.pack_forget()
+		self.CreatLivePage.pack_forget()
 		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack_forget()
 
 	def BidAuction(self):
 		self.BidProductPage.pack_forget()
 		self.DelayProductPage.pack_forget()
 		self.BidAuctionPage.pack()
 		self.DelayAuctionPage.pack_forget()
-		self.FormLivePage.pack_forget()
+		self.CreatLivePage.pack_forget()
 		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack_forget()
 
 	def DelayAuction(self):
 		self.BidProductPage.pack_forget()
 		self.DelayProductPage.pack_forget()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack()
-		self.FormLivePage.pack_forget()
+		self.CreatLivePage.pack_forget()
 		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack_forget()
 
-	def FormLive(self):
+	def CreatLive(self):
 		self.BidProductPage.pack_forget()
 		self.DelayProductPage.pack_forget()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack_forget()
-		self.FormLivePage.pack()
+		self.CreatLivePage.pack()
 		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack_forget()
 
 	def DLEProduct(self):
 		self.BidProductPage.pack_forget()
 		self.DelayProductPage.pack_forget()
 		self.BidAuctionPage.pack_forget()
 		self.DelayAuctionPage.pack_forget()
-		self.FormLivePage.pack_forget()
+		self.CreatLivePage.pack_forget()
 		self.DeleTeProductPage.pack()
+		self.ShopProductPage.pack_forget()
+
+	def ShopProduct(self):
+		self.BidProductPage.pack_forget()
+		self.DelayProductPage.pack_forget()
+		self.BidAuctionPage.pack_forget()
+		self.DelayAuctionPage.pack_forget()
+		self.CreatLivePage.pack_forget()
+		self.DeleTeProductPage.pack_forget()
+		self.ShopProductPage.pack()

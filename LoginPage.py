@@ -14,11 +14,14 @@ import time
 from tkinter import *
 from tkinter.messagebox import *
 from MainPage import *
-from wirte import wirte
+from GetFile import *
 from api import *
-import socket
+from GetIp import GetIp
+from GetFile import GetUserInfo
 
 class LoginPage(object):
+
+
 	def __init__(self, master=None):
 		self.root = master  # 定义内部变量root
 		sw = self.root.winfo_screenwidth()
@@ -27,40 +30,42 @@ class LoginPage(object):
 		self.root.geometry('%dx%d+%d+%d' % (461, 344, (sw-461)/2, (sh-344)/2))  # 设置窗口大小
 		self.username = StringVar()
 		self.password = StringVar()
-		self.ip = socket.gethostname()
-		value = localRedis.get(f"TK_NUMBER:{self.ip}")
-		if value != None:
-			rm_dict = json.loads(value.decode())
-			rm = rm_dict['remeber']
-			if rm:
-				self.username.set(rm_dict['username'])
-				self.password.set(rm_dict['password'])
-			else:
-				self.username.set("输入11位手机号码")
-				self.password.set("请输入密码")
-		else:
-			self.username.set("输入11位手机号码")
-			self.password.set("请输入密码")
+		self.ip = GetIp().get_ip
 		self.remember = BooleanVar()
+		self.user_info = GetUserInfo().get_file
 		self.createPage()
 
 
 	def createPage(self):
 		self.page = Frame(self.root)  # 创建Frame
 		self.page.pack()
+		Label(self.page, text='登录', font=("楷体", 20)).grid(row=2, rowspan=2, columnspan=5)
 		Label(self.page, text='', font=("楷体", 12)).grid(row=0, stick=W)
 		Label(self.page, text='', font=("楷体", 12)).grid(row=1, stick=W)
 		Label(self.page, text='', font=("楷体", 12)).grid(row=2, stick=W)
 		Label(self.page, text='', font=("楷体", 12)).grid(row=3, stick=W)
 		Label(self.page, text='', font=("楷体", 12)).grid(row=4, stick=W)
 		Label(self.page, text='账 户: ', font=("楷体", 12)).grid(row=5, stick=W, pady=10)
-		self.NAME = Entry(self.page, textvariable=self.username).grid(row=5, column=1, stick=E)
+		name_entry = Entry(self.page, textvariable=self.username)
+		name_entry.grid(row=5, column=1, stick=E)
+		name_entry.insert(0, "请输入账号")
 		Label(self.page, text='密 码: ', font=("楷体", 12)).grid(row=6, stick=W, pady=10)
-		self.PWD = Entry(self.page, textvariable=self.password, show='*').grid(row=6, column=1, stick=E)
-		cbx = Checkbutton(self.page, variable=self.remember, text="记住我", onvalue=1, offvalue=0)
+		pwd_entry = Entry(self.page, textvariable=self.password, show='*')
+		pwd_entry.grid(row=6, column=1, stick=E)
+		pwd_entry.insert(0, "请输入密码")
+		cbx = Checkbutton(self.page, variable=self.remember, text="记住我", onvalue=1, offvalue=0, command=self.auto_login)
 		cbx.grid(row=7, stick=W, pady=10)
 		Button(self.page, text='登 陆', command=self.loginCheck, font=("楷体", 12)).grid(row=8, stick=W, pady=10)
 		Button(self.page, text='取 消', command=self.root.quit, font=("楷体", 12)).grid(row=8, column=1, stick=E)
+
+	def auto_login(self, event=None):
+		user = self.user_info
+		if user['remeber']:
+			self.username.set(user['username'])
+			self.password.set(user['passwrod'])
+		else:
+			self.username.set("请输入账号")
+			self.password.set("请输入密码")
 
 	def loginCheck(self):
 		name = self.username.get()
@@ -72,31 +77,18 @@ class LoginPage(object):
 				self.page.destroy()
 				MainPage(self.root)
 				Authorization = 'Bearer ' + req.json()['accessToken']
-				user_info = {"username": name, "Authorization": Authorization, "memberId": req.json()['id']}
-				localRedis.set(name=f"TK_NUMBER:{self.ip}",
-							   value=json.dumps({"username": name, "password": secret, "remeber": rm, "wip":self.ip,
-									  "loginTime": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}))
-				wirte(json.dumps(user_info))
+				if rm:
+					user_info = {"username": name, "passwrod": secret, "Authorization": Authorization,
+								 "memberId": req.json()['id'], "remeber": rm}
+				else:
+					user_info = {"username": name, "passwrod": "", "Authorization": Authorization,
+								 "memberId": req.json()['id'], "remeber": rm}
+				GetUserInfo().wirte(json.dumps(user_info))
 			else:
-				showinfo(title='错误', message='账号或密码错误！')
+				showinfo(title='错误', message='账号或密码错误')
 		else:
 			showinfo(title='错误', message='账号或密码错误！')
 
 
-	def auto_name(self):
-		value = localRedis.get(f"TK_NUMBER:{self.ip}")
-		if value != None:
-			rm_dict = json.loads(value.decode())
-			rm = rm_dict['remeber']
-			if rm:
-				self.username.set(rm_dict['username'])
-
-	def auto_pwd(self):
-		value = localRedis.get(f"TK_NUMBER:{self.ip}")
-		if value != None:
-			rm_dict = json.loads(value.decode())
-			rm = rm_dict['remeber']
-			if rm:
-				self.password.set(rm_dict['password'])
 
 
