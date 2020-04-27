@@ -517,6 +517,13 @@ class AuctionList():
 		auctionList = ["请选择拍场"] + self.get_delay_aucution() + self.get_bid_aucution()
 		return auctionList
 
+	def get_specialGuest(self):
+		sql = f'SELECT u.id FROM `user` u, member_acc m ' \
+			  f'WHERE m.member_id=u.id AND u.id in(SELECT member_id FROM fans WHERE ' \
+			  f'member_id in (SELECT fans_id FROM fans WHERE member_id={self._meberId}) AND fans_id={self._meberId})'
+		memberList = Mysql().sql_result(sql)
+		return memberList
+
 
 def get_liveType(name):
 	if name == "轰啪直播":
@@ -547,6 +554,8 @@ class CLiveFrame(Frame):
 		self.createPage()
 
 	def createPage(self):
+		user_info = GetUserInfo().get_file
+		memberId = user_info['memberId']
 		Label(self, text="").grid(row=0)
 		Label(self, text="直播创建", font=("楷体", 20), fg="#9370DB").grid(row=3, rowspan=2, columnspan=5)
 		Label(self, text="类 型: ", font=("楷体", 12)).grid(row=5, stick=W, pady=4)
@@ -571,18 +580,12 @@ class CLiveFrame(Frame):
 		Label(self, text="嘉 宾: ", font=("楷体", 12)).grid(row=9, stick=W, pady=4)
 		self.specialGuestBox = ttk.Combobox(self, width=40, font=("楷体", 12), textvariable=self.specialGuestId, state='readonly')
 		self.specialGuestBox.grid(row=9, column=1, stick=E)
-		user_info = GetUserInfo().get_file
-		memberId = user_info['memberId']
-		sql = f'SELECT u.id FROM `user` u, member_acc m ' \
-			  f'WHERE m.member_id=u.id AND u.id in(SELECT member_id FROM fans WHERE ' \
-			  f'member_id in (SELECT fans_id FROM fans WHERE member_id={memberId}) AND fans_id={memberId})'
-		slist = Mysql().sql_result(sql)
-		self.specialGuestBox['values'] = ["请选择嘉宾"] + slist
+		self.specialGuestBox['values'] = ["请选择场控"] + AuctionList(memberId).get_specialGuest()
 		self.specialGuestBox.current(0)
 		Label(self, text="场 控: ", font=("楷体", 12)).grid(row=10, stick=W, pady=4)
 		self.PresenterBox = ttk.Combobox(self, width=40, font=("楷体", 12), textvariable=self.presenterId, state='readonly')
 		self.PresenterBox.grid(row=10, column=1, stick=E)
-		self.PresenterBox['values'] =  ["请选择嘉宾"] + slist
+		self.PresenterBox['values'] =  ["请选择场控"] + AuctionList(memberId).get_specialGuest()
 		self.PresenterBox.current(0)
 		start_label = Label(self, text="开播时间: ", font=("楷体", 12))
 		start_label.grid(row=11, stick=W, pady=6)
@@ -608,6 +611,7 @@ class CLiveFrame(Frame):
 		self.auction_combox = ttk.Combobox(self, width=40, font=("楷体", 12), textvariable=self.auctionId, state='readonly')
 		self.auction_combox.grid(row=13, column=1, stick=E)
 		self.auction_combox['values'] = AuctionList(memberId).get_auction_list()
+		self.auction_combox['values'] = ["请选择拍场"]
 		self.auction_combox.current(0)
 		self.auction_combox.bind("<<ComboboxSelected>>", self.auto_tex)
 		button_list = Frame(self)
@@ -681,6 +685,9 @@ class CLiveFrame(Frame):
 
 
 
+
+
+
 class ShopFrame(Frame):  # 继承Frame类
 	"""商城商品"""
 	def __init__(self, master=None):
@@ -704,6 +711,8 @@ class ShopFrame(Frame):  # 继承Frame类
 		self.createPage()
 
 	def createPage(self):
+		user_info = GetUserInfo().get_file
+		memberId = user_info['memberId']
 		Label(self, text="").grid(row=0)
 		Label(self, text="创建商城商品", font=("楷体", 20), fg="#9370DB").grid(row=3, rowspan=2, columnspan=5)
 		Label(self, text="名 字: ", font=("楷体", 12)).grid(row=5, stick=W, pady=4)
@@ -755,12 +764,11 @@ class ShopFrame(Frame):  # 继承Frame类
 		Label(self, text="店铺分类: ", font=("楷体", 12)).grid(row=14, stick=W, pady=4)
 		self.shop_combox = ttk.Combobox(self, width=40, font=("楷体", 12), textvariable=self.shop_type, state='readonly')
 		self.shop_combox.grid(row=14, column=1, stick=E)
-		shop_type_list = Mysql().sql_result\
+		origin_type_list = ["请选择分类"]
+		shop_type_list = Mysql().sql_result \
 			(f'select `name` from shop_product_category where shop_id='
-			 f'(SELECT id FROM mall_shop WHERE member_id={GetUserInfo().get_file["memberId"]}) and valid=TRUE')
-		if len(shop_type_list) == 0:
-			shop_type_list = ["请创建分类"]
-		self.shop_combox['values'] = shop_type_list
+			 f'(SELECT id FROM mall_shop WHERE member_id={memberId}) and valid=TRUE')
+		self.shop_combox['values'] = origin_type_list + shop_type_list
 		self.shop_combox.current(0)
 		self.inventory_label = Label(self, text="库 存: ", font=("楷体", 12))
 		self.inventory_label.grid(row=15, stick=W, pady=4)
@@ -817,6 +825,8 @@ class ShopFrame(Frame):  # 继承Frame类
 		wait_combox.bind("<<ComboboxSelected>>", dis_play)
 		free_combox.bind("<<ComboboxSelected>>", display_postage)
 
+
+
 	def close(self):
 		self.quit()
 
@@ -835,7 +845,7 @@ class ShopFrame(Frame):  # 继承Frame类
 		self.number.set(str(random.randint(1, 100)))
 
 	def addProdct(self):
-		user_info = user_info = GetUserInfo().get_file
+		user_info = GetUserInfo().get_file
 		Authorization = user_info['Authorization']
 		memberId = user_info['memberId']
 		name = self.name.get()

@@ -19,6 +19,8 @@ from api import *
 from GetIp import GetIp
 from GetFile import GetUserInfo
 
+
+
 class LoginPage(object):
 
 
@@ -32,6 +34,7 @@ class LoginPage(object):
 		self.password = StringVar()
 		self.ip = GetIp().get_ip
 		self.remember = BooleanVar()
+		self.auto = BooleanVar()
 		self.user_info = GetUserInfo().get_file
 		self.createPage()
 
@@ -53,14 +56,18 @@ class LoginPage(object):
 		pwd_entry = Entry(self.page, textvariable=self.password, show='*')
 		pwd_entry.grid(row=6, column=1, stick=E)
 		pwd_entry.insert(0, "请输入密码")
-		cbx = Checkbutton(self.page, variable=self.remember, text="记住我", onvalue=1, offvalue=0, command=self.auto_login)
-		cbx.grid(row=7, stick=W, pady=10)
+		self.rember_box = Checkbutton(self.page, variable=self.remember, text="记住我", onvalue=1, offvalue=0)
+		self.rember_box.grid(row=7, stick=W, pady=10)
+		self.auto_box = Checkbutton(self.page, variable=self.auto, text="自动登录", onvalue=1, offvalue=0,
+							   command=self.auto_login)
+		self.auto_box.grid(row=7, column=1, stick=E, pady=10)
+
 		Button(self.page, text='登 陆', command=self.loginCheck, font=("楷体", 12)).grid(row=8, stick=W, pady=10)
 		Button(self.page, text='取 消', command=self.root.quit, font=("楷体", 12)).grid(row=8, column=1, stick=E)
 
-	def auto_login(self, event=None):
+	def auto_login(self):
 		user = self.user_info
-		if user['remeber']:
+		if self.auto.get():
 			self.username.set(user['username'])
 			self.password.set(user['passwrod'])
 		else:
@@ -68,22 +75,27 @@ class LoginPage(object):
 			self.password.set("请输入密码")
 
 	def loginCheck(self):
-		name = self.username.get()
-		secret = self.password.get()
+		if self.auto.get():
+			txt_user_info = self.user_info
+			name = txt_user_info['username']
+			secret = txt_user_info['passwrod']
+		else:
+			name = self.username.get()
+			secret = self.password.get()
 		rm = self.remember.get()
 		if name != "" and secret != "":
 			req = login(name, secret)
 			if req.status_code == 200:
 				self.page.destroy()
-				MainPage(self.root)
 				Authorization = 'Bearer ' + req.json()['accessToken']
 				if rm:
-					user_info = {"username": name, "passwrod": secret, "Authorization": Authorization,
+					login_user_info = {"username": name, "passwrod": secret, "Authorization": Authorization,
 								 "memberId": req.json()['id'], "remeber": rm}
 				else:
-					user_info = {"username": name, "passwrod": "", "Authorization": Authorization,
+					login_user_info = {"username": name, "passwrod": "", "Authorization": Authorization,
 								 "memberId": req.json()['id'], "remeber": rm}
-				GetUserInfo().wirte(json.dumps(user_info))
+				GetUserInfo().wirte(json.dumps(login_user_info))
+				MainPage(self.root)
 			else:
 				showinfo(title='错误', message='账号或密码错误')
 		else:

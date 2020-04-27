@@ -37,7 +37,6 @@ class GetUserInfo():
 			co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
 		return co.sub(restr, desstr)
 
-
 class GetConfig():
 
 	def __init__(self):
@@ -59,6 +58,5 @@ class GetName():
 	def _name(self):
 		f = open(self._file, encoding="utf-8", errors='ignore')
 		return random.choice(f.readlines())
-
 
 
